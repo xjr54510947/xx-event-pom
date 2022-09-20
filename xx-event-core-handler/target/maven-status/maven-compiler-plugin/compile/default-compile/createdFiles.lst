@@ -1,0 +1,10 @@
+com\xx\event\action\apply\producer\EventTemplate.class
+com\xx\event\action\mq\rabbitMQ\producer\ProducerMessageHandler.class
+com\xx\event\action\apply\consumer\XuEvent.class
+com\xx\event\action\mq\rabbitMQ\config\XuRabbitMqConfiguration.class
+com\xx\event\action\core\producer\DefaultCoreProducerHandler.class
+com\xx\event\action\core\consumer\DefaultCoreConsumerHandler.class
+com\xx\event\action\apply\consumer\XuEventHandler.class
+com\xx\event\action\mq\rabbitMQ\config\XuRabbitMqConfiguration$ProducerConfiguration.class
+com\xx\event\action\mq\rabbitMQ\config\XuRabbitMqConfiguration$ConsumerConfiguration.class
+com\xx\event\action\mq\rabbitMQ\consumer\ConsumerMessageHandler.class

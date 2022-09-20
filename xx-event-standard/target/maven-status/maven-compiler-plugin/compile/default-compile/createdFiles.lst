@@ -1,0 +1,8 @@
+com\xx\event\entity\XuMessage$1.class
+com\xx\event\inter\CoreConsumerStandard.class
+com\xx\event\inter\MqProducerStandard.class
+com\xx\event\interceptor\XuProducerInterceptor.class
+com\xx\event\entity\XuMessage.class
+com\xx\event\inter\CoreProducerStandard.class
+com\xx\event\entity\XuMessage$Builder.class
+com\xx\event\interceptor\XuConsumerInterceptor.class
