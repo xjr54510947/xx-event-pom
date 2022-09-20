@@ -1,23 +1,22 @@
 package com.xx.event.action.mq.rabbitMQ.config;
 
+import com.xx.event.action.apply.consumer.XuEvent;
+import com.xx.event.action.apply.consumer.XuEventHandler;
 import com.xx.event.action.mq.rabbitMQ.consumer.ConsumerMessageHandler;
 import com.xx.event.action.mq.rabbitMQ.producer.ProducerMessageHandler;
 import com.xx.event.base.Constant;
-import com.xx.event.action.apply.consumer.XuEvent;
-import com.xx.event.action.apply.consumer.XuEventHandler;
 import com.xx.event.utils.ApplicationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: X_X
@@ -45,6 +44,16 @@ public class XuRabbitMqConfiguration {
         @Bean
         public DirectExchange getDirectExchange(){
             return new DirectExchange(Constant.RABBITMQ_EXCHANGE_NORMAL_NAME,true,false);
+        }
+
+        /**
+         * 创建一个延迟交换机
+         */
+        @Bean
+        public CustomExchange getCustomExchange(){
+            Map<String, Object> map = new HashMap<>();
+            map.put("x-delayed-type","topic");
+            return new CustomExchange(Constant.RABBITMQ_EXCHANGE_DELAY_NAME,"x-delayed-message",true,false,map);
         }
     }
 
@@ -81,7 +90,7 @@ public class XuRabbitMqConfiguration {
          * 然后消费者端还要把队列和交换机进行绑定
          */
         @Bean
-        public Binding getBinding(DirectExchange directExchange,Queue queue){
+        public Binding getQuickBinding(DirectExchange directExchange,Queue queue){
             for (XuEventHandler eventHandler : xuEventHandlers){
 
                XuEvent xuEvent =  eventHandler.getClass().getAnnotation(XuEvent.class);
@@ -98,5 +107,36 @@ public class XuRabbitMqConfiguration {
             }
             return null;
         }
+
+
+        /**
+         * 用延迟交换机绑定队列
+         * @param customExchange
+         * @param queue
+         * @return
+         */
+        @Bean
+        public Binding getDelayBinding(CustomExchange customExchange,Queue queue){
+            for (XuEventHandler eventHandler : xuEventHandlers){
+
+                XuEvent xuEvent =  eventHandler.getClass().getAnnotation(XuEvent.class);
+
+                if (xuEvent.value()==null){ throw new RuntimeException("请写上XuEvent的注解名称"); }
+
+                Binding binding =  BindingBuilder.bind(queue).to(customExchange).with(xuEvent.value()).and(new HashMap<>());
+
+                /**
+                 * 这里不能直接返回binding对象，因为有可能有多个绑定需要返回，直接return后面的不能返回了
+                 * 我们需要手动的把binding对象放到IOC容器中
+                 */
+                ApplicationUtils.registerBean(binding.getClass().getName()+binding.hashCode(),binding);
+            }
+            return null;
+        }
+
+
+
+
+
     }
 }

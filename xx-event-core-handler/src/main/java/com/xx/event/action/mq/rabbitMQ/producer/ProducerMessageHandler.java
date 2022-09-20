@@ -27,15 +27,24 @@ public class ProducerMessageHandler implements MqProducerStandard {
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setDeliveryMode(xuMessage.getMsgType() == 0? MessageDeliveryMode.NON_PERSISTENT:MessageDeliveryMode.PERSISTENT);
 
+        //判断接接收到的消息是否为延迟消息
+        if (xuMessage.getMsgType() == 1){
+            messageProperties.setHeader("x-delay",xuMessage.getDelayTime());
+        }
         byte[] body = SerializationUtils.serialize(xuMessage);
         //封装成mq的消息对象
         Message message = new Message(body,messageProperties);
 
         if (xuMessage.getMsgType()==2){
             //进行kafka的可靠消息
-        }else {
+        }else if (xuMessage.getMsgType() == 0){
             //把消息发送到交换机
             rabbitTemplate.send(Constant.RABBITMQ_EXCHANGE_NORMAL_NAME,xuMessage.getEventType(),message);
+        }else {
+            rabbitTemplate.send(Constant.RABBITMQ_EXCHANGE_DELAY_NAME,xuMessage.getEventType(),message);
         }
+
+
+
     }
 }

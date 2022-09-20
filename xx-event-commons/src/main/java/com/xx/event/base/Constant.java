@@ -9,6 +9,8 @@ package com.xx.event.base;
 public interface Constant {
     String RABBITMQ_EXCHANGE_NORMAL_NAME = "event-exchange";
 
+    String RABBITMQ_EXCHANGE_DELAY_NAME = "event-delay-exchange";
+
     String RABBITMQ_QUEUE_NORMAL_NAME = "event-queue";
 
 }
